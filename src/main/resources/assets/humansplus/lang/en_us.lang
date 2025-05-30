@@ -1,0 +1,6 @@
+entity.humansplus.human_rogue.name=Rogue
+entity.humansplus.human_hunter.name=Hunter
+entity.humansplus.human_samurai.name=Samurai
+entity.humansplus.human_bandit.name=Bandit
+
+item.humansplus.sword.name=Human Sword

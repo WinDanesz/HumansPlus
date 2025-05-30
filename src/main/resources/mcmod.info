@@ -1,0 +1,16 @@
+[
+{
+  "modid": "humansplus",
+  "name": "Humans+",
+  "description": "Adds various human NPCs with quests, combat, and interactions to Minecraft",
+  "version": "1.12.2-2.0.0",
+  "mcversion": "1.12.2",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Okushama"],
+  "credits": "Original mod by Okushama, updated to 1.12.2",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
