@@ -3,6 +3,7 @@ package okushama.humansplus.quest;
 import java.util.Random;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
 
 import okushama.humansplus.Panel;
 
@@ -32,7 +33,7 @@ public class PanelQuestImage extends Panel{
 	public void drawImageInside(){
 		Minecraft mc = Minecraft.getMinecraft();
 		GL11.glPushMatrix();
-		mc.renderEngine.bindTexture(mc.renderEngine.getTexture(img));	
+		mc.renderEngine.bindTexture(new ResourceLocation(img));	
 		GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glTranslatef((float)x+1, (float)y+1, 0F);

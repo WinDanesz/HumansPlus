@@ -13,6 +13,7 @@ import okushama.humansplus.Human;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -50,8 +51,7 @@ public class Quest {
 	
 	public ArrayList<String> configLines = new ArrayList<String>();
 	
-	public Quest(String file){
-		questConfig = new File(Minecraft.getMinecraft().gameDir, file);
+	public Quest(String file){                questConfig = new File(Minecraft.getMinecraft().mcDataDir, file);
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(questConfig)));
 			String l = "";
@@ -114,7 +114,7 @@ public class Quest {
 				if(key.equals("npctype"))
 					this.npctype = value;
 				if(key.equals("script"))
-					this.questScript = new File(Minecraft.getMinecraft().gameDir.getAbsolutePath()+"/okushama/humansplus/quest/script/", value);
+					this.questScript = new File(Minecraft.getMinecraft().mcDataDir.getAbsolutePath()+"/okushama/humansplus/quest/script/", value);
 			}catch(Exception e){
 				System.out.println("Quest invalid! "+questConfig.getName());
 			}
@@ -156,8 +156,7 @@ public class Quest {
 	}
 	
 	
-	public void initQuest(){
-		thePlayer = Minecraft.getMinecraft().thePlayer;
+	public void initQuest(){                thePlayer = Minecraft.getMinecraft().player;
 		if(this.assignQuestToHuman(100D)){
 			//System.out.println("Init Quest: "+this.name);
 			if(questScript != null)
@@ -169,7 +168,7 @@ public class Quest {
 			}
 			((PanelQuest)HandlerQuests.panels.get(0)).setQuest(this);
 			if(Minecraft.getMinecraft().getIntegratedServer() != null){
-				List<EntityPlayer> l = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayers();
+				List<EntityPlayerMP> l = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayers();
 				for(int k = 0; k < l.size(); k++){
 					if(l.get(k).getName().equals(thePlayer.getName())){
 						this.thePlayer = l.get(k);
@@ -225,7 +224,7 @@ public class Quest {
 				if(iFlag[0].toLowerCase().equals("item")){
 					String[] fl = iFlag[1].split("\\*");
 					try{
-						List<EntityPlayer> l = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayers();
+						List<EntityPlayerMP> l = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayers();
 						for(int k = 0; k < l.size(); k++){
 							if(l.get(k).getName().equals(thePlayer.getName())){
 								ItemStack is = new ItemStack(Item.getItemById(Integer.valueOf(fl[0])), Integer.valueOf(fl[1]), 0);
@@ -240,7 +239,7 @@ public class Quest {
 				
 				if(iFlag[0].toLowerCase().equals("exp")){
 					try{
-						List<EntityPlayer> l = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayers();
+						List<EntityPlayerMP> l = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayers();
 						for(int k = 0; k < l.size(); k++){
 							if(l.get(k).getName().equals(thePlayer.getName())){
 								int toAdd = 0;
@@ -260,7 +259,7 @@ public class Quest {
 				if(iFlag[0].toLowerCase().equals("buff")){
 					try{
 						String[] fl = iFlag[1].split("\\*");
-						List<EntityPlayer> l = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayers();
+						List<EntityPlayerMP> l = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayers();
 						for(int k = 0; k < l.size(); k++){
 							if(l.get(k).getName().equals(thePlayer.getName())){
 								for(Potion p : Potion.REGISTRY){
@@ -312,7 +311,7 @@ public class Quest {
             }
             Human human = (Human)ents.get(i);
             if(human.getName().toLowerCase().equals(this.npctype.toLowerCase())){
-                if(!human.isVending && human.getDistanceToEntity(thePlayer) <= withinPlayerDist){
+                if(!human.isVending && human.getDistance(thePlayer) <= withinPlayerDist){
                     this.vendor = human;
                     engine.put("vendor", vendor);
                     human.setVendingQuest(true);

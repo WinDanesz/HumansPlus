@@ -14,7 +14,8 @@ import okushama.humansplus.Panel;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.src.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 
 public class HandlerQuests {
 	
@@ -34,7 +35,7 @@ public class HandlerQuests {
 		Panel p1 = new PanelQuestImage(266, 17, 40, 40, "/okushama/humansplus/boots.png",0,0);
 		panels.add(p);
 		panels.add(p1);
-		for(String f : new File(Minecraft.getMinecraftDir().getAbsolutePath()+"/okushama/humansplus/quest/").list()){
+		for(String f : new File(Minecraft.getMinecraft().mcDataDir.getAbsolutePath()+"/okushama/humansplus/quest/").list()){
 			if(f.endsWith("1.txt")){
 				System.out.println("Loaded Quest! "+f);
 				loadedQuests.add(new Quest("/okushama/humansplus/quest/"+f));
@@ -49,7 +50,7 @@ public class HandlerQuests {
 	
 	public int timeout = 6800;
 	public void onTick(){
-		if(mc.theWorld != null && mc.thePlayer != null){
+		if(mc.world != null && mc.player != null){
 			if(currentQuest != null){
 				if(!currentQuest.hasStarted){
 					timeout--;
@@ -67,12 +68,12 @@ public class HandlerQuests {
 						currentQuest.quitQuest();
 						return;
 					}
-					if(currentQuest.vendor.getEntityToAttack() instanceof EntityPlayer){
+					if(currentQuest.vendor.getAttackTarget() instanceof EntityPlayer){
 						currentQuest.quitQuest();
 						return;
 					}
-					if(mc.thePlayer != null)
-					if(currentQuest.vendor.getDistanceToEntity(mc.thePlayer) < 10D){
+					if(mc.player != null)
+					if(currentQuest.vendor.getDistance(mc.player) < 10D){
 						currentQuest.vendor.isInRangeToVend = true;
 					}else{
 						currentQuest.vendor.isInRangeToVend = false;
@@ -172,14 +173,13 @@ public class HandlerQuests {
 	public void onRenderTick(){
 		if(currentQuest != null){
 			if(currentQuest.vendor != null && HandlerKeybinds.showPanel){
-				if(currentQuest.vendor.isInRangeToVend){
-					for(Panel p : panels){
-						p.onUpdate();
-						if(!p.visible || mc.currentScreen != null || mc.thePlayer == null ){ continue; }
-						GL11.glPushMatrix();
-						GL11.glScalef(0.76F,  0.76F, 1F);
-						GL11.glPushMatrix();
-						mc.renderEngine.bindTexture(mc.renderEngine.getTexture(p.texture));	
+				if(currentQuest.vendor.isInRangeToVend){				for(Panel p : panels){
+					p.onUpdate();
+					if(!p.visible || mc.currentScreen != null || mc.player == null ){ continue; }
+					GL11.glPushMatrix();
+					GL11.glScalef(0.76F,  0.76F, 1F);
+					GL11.glPushMatrix();
+					mc.renderEngine.bindTexture(new net.minecraft.util.ResourceLocation(p.texture));	
 						GL11.glEnable(GL11.GL_BLEND);
 				        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				        GL11.glTranslatef((float)p.x, (float)p.y, 0F);

@@ -3,12 +3,13 @@ package okushama.humansplus.quest;
 import javax.script.ScriptException;
 
 import okushama.humansplus.Human;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.util.math.BlockPos;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.src.BiomeGenBase;
-import net.minecraft.src.Chunk;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 
 public class MonitorScout {
 	public MonitorScout(){
@@ -16,7 +17,7 @@ public class MonitorScout {
 	}
 	
 	public String flags = "";
-	public BiomeGenBase biome;
+	public Biome biome;
 	
 	public void resetVars(){
 		flags = "";
@@ -24,11 +25,12 @@ public class MonitorScout {
 	
 	public void setVarsToCurrentQuest(){
 		flags = HandlerQuests.currentQuest.flags;
-		for(BiomeGenBase b : BiomeGenBase.biomeList)
-		if(b != null)
-		if(b.biomeName.trim().toLowerCase().equals(flags.toLowerCase())){
-			biome = b;
-			continue;
+		for(Biome b : Biome.REGISTRY){
+			if(b != null)
+				if(b.getBiomeName().trim().toLowerCase().equals(flags.toLowerCase())){
+					biome = b;
+					continue;
+				}
 		}
 		if(getVendorBiome() != null){
 			if(getVendorBiome() == biome){
@@ -62,11 +64,12 @@ public class MonitorScout {
 		}
 	}
 	
-	public BiomeGenBase getVendorBiome(){
+	public Biome getVendorBiome(){
 		Human p = HandlerQuests.currentQuest.vendor;
-		World w = p.worldObj;
-		Chunk chunk = w.getChunkFromBlockCoords((int)p.posX, (int)p.posZ);
-		return chunk.getBiomeGenForWorldCoords((int)Math.floor(p.posX) & 15, (int)Math.floor(p.posZ) & 15, Minecraft.getMinecraft().theWorld.getWorldChunkManager());
+		World w = p.world;
+		net.minecraft.util.math.BlockPos pos = new net.minecraft.util.math.BlockPos((int)p.posX, (int)p.posY, (int)p.posZ);
+		Chunk chunk = w.getChunkFromChunkCoords((int)p.posX >> 4, (int)p.posZ >> 4);
+		return chunk.getBiome(pos, w.getBiomeProvider());
 	}
 
 }

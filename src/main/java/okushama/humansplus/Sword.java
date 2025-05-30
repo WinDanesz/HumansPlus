@@ -8,8 +8,14 @@ import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
+import net.minecraft.item.EnumAction;
+import net.minecraft.item.EnumRarity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -86,38 +92,41 @@ public class Sword extends ItemSword
         return 72000;
     }
     
+    // Note: getTextureFile() is no longer used in 1.12.2 - textures are handled through resource packs
+    /*
     @Override
     public String getTextureFile()
     {
             return "/okushama/humansplus/swords.png";
     }
+    */
 
     // on Right Click set in use
     @Override
-    public ItemStack onItemRightClick(ItemStack thisStack, World thisWorld, EntityPlayer thePlayer)
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
     {
-    	if(thisWorld.isRemote){
-    		return thisStack;
-    	}
-    	HumanHunter hunter = new HumanHunter(thisWorld);
-    	hunter.setPositionAndRotation(thePlayer.posX, thePlayer.posY, thePlayer.posZ, thePlayer.rotationYaw, thePlayer.rotationPitch);
-    	thisWorld.spawnEntityInWorld(hunter);
-        thePlayer.setItemInUse(thisStack, this.getMaxItemUseDuration(thisStack));
-        return thisStack;
+        ItemStack thisStack = playerIn.getHeldItem(handIn);
+        if(worldIn.isRemote){
+            return new ActionResult<>(EnumActionResult.PASS, thisStack);
+        }
+        HumanHunter hunter = new HumanHunter(worldIn);
+        hunter.setPositionAndRotation(playerIn.posX, playerIn.posY, playerIn.posZ, playerIn.rotationYaw, playerIn.rotationPitch);
+        worldIn.spawnEntity(hunter);
+        playerIn.setActiveHand(handIn);
+        return new ActionResult<>(EnumActionResult.SUCCESS, thisStack);
     }
     
     // set state to blocking when in use
     @Override
     public EnumAction getItemUseAction(ItemStack thisStack)
     {
-        return EnumAction.block;
+        return EnumAction.BLOCK;
     }
 
-    // Blocks this sword can harvest
-    @Override
-    public boolean canHarvestBlock(Block par1Block)
+    // Blocks this sword can harvest - updated for 1.12.2
+    public boolean canHarvestBlock(net.minecraft.block.state.IBlockState blockState)
     {
-        return par1Block.blockID == Block.web.blockID;
+        return blockState.getBlock() == net.minecraft.init.Blocks.WEB;
     }
 
 
@@ -128,9 +137,8 @@ public class Sword extends ItemSword
         return material.getEnchantability();
     }
 
-    // Get Material name
-    @Override
-    public String func_77825_f()
+    // Get Material name - replaced with proper method name in 1.12.2
+    public String getToolMaterialName()
     {
         return material.toString();
     }
@@ -138,12 +146,12 @@ public class Sword extends ItemSword
     @SideOnly(Side.CLIENT)
 
     @Override
-    public net.minecraft.util.EnumRarity getRarity(ItemStack par1ItemStack)
+    public EnumRarity getRarity(ItemStack par1ItemStack)
     {
-		return par1ItemStack.isItemEnchanted() ? net.minecraft.util.EnumRarity.RARE : 
-		       this.material.equals(RegistrySword.material[RegistrySword.LEGENDARY]) ? net.minecraft.util.EnumRarity.EPIC : 
-		       this.material.equals(RegistrySword.material[RegistrySword.ANCIENT]) ? net.minecraft.util.EnumRarity.RARE : 
-		       net.minecraft.util.EnumRarity.COMMON;
+		return par1ItemStack.isItemEnchanted() ? EnumRarity.RARE : 
+		       this.material.equals(RegistrySword.material[RegistrySword.LEGENDARY]) ? EnumRarity.EPIC : 
+		       this.material.equals(RegistrySword.material[RegistrySword.ANCIENT]) ? EnumRarity.RARE : 
+		       EnumRarity.COMMON;
     }
     
     @SideOnly(Side.CLIENT)

@@ -46,7 +46,8 @@ public abstract class Human extends EntityMob implements IMob, IEntityAdditional
 		this.tasks.addTask(0, new EntityAISwimming(this));
 		this.tasks.addTask(1, new EntityAIBreakDoor(this));
 		this.tasks.addTask(3, new EntityAIMoveTowardsRestriction(this, 1.0D));
-		this.tasks.addTask(4, new EntityAIMoveTowardsVillage(this, 1.0D, false));
+		// EntityAIMoveTowardsVillage doesn't exist in 1.12.2 - replacing with AI task
+		this.tasks.addTask(4, new EntityAIWander(this, 0.6D));
 		this.tasks.addTask(5, new EntityAIWander(this, 1.0D));
 		this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
 		this.tasks.addTask(6, new EntityAILookIdle(this));

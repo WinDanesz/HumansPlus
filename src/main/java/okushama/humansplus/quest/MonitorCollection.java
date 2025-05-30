@@ -2,10 +2,11 @@ package okushama.humansplus.quest;
 
 import java.util.*;
 
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.IInventory;
-import net.minecraft.src.InventoryPlayer;
-import net.minecraft.src.Item;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.util.text.TextComponentString;
 
 public class MonitorCollection {
 	
@@ -56,14 +57,13 @@ public class MonitorCollection {
 		if(tempAmt == 0){
 			//System.out.println("Necessary items!");
 			if(p.inventory.getFirstEmptyStack() < 0){
-				if(timesTriedOnFull == 0)
-				p.addChatMessage("You do not have enough free space to accept the reward!");
+				if(timesTriedOnFull == 0)                                p.sendMessage(new TextComponentString("You do not have enough free space to accept the reward!"));
 				if(timesTriedOnFull == 1)
-					p.addChatMessage("Do not test my patience, As I said, you need space!");
+					p.sendMessage(new TextComponentString("Do not test my patience, As I said, you need space!"));
 				if(timesTriedOnFull == 2)
-					p.addChatMessage("Last chance, make space for it, or we're through here.");
+					p.sendMessage(new TextComponentString("Last chance, make space for it, or we're through here."));
 				if(timesTriedOnFull == 3){
-					p.addChatMessage("You blew it, I no longer require your help!");
+					p.sendMessage(new TextComponentString("You blew it, I no longer require your help!"));
 					HandlerQuests.currentQuest.quitQuest();
 					resetVars();
 				}
@@ -83,27 +83,26 @@ public class MonitorCollection {
 		if(inv != null){
 			//System.out.println("Checking inventory for itemid:"+id+" at amount "+amount+", take:"+shouldTake);
 			int tempAmt = amount;
-			for(int i = 0; i < inv.mainInventory.length; i++){
-				if(inv.mainInventory[i] != null){
+			for(int i = 0; i < inv.mainInventory.size(); i++){
+				if(!inv.mainInventory.get(i).isEmpty()){
 				//	System.out.println(inv.mainInventory[i].itemID+"*"+inv.mainInventory[i].stackSize+" is in slot "+i);
-					if(inv.mainInventory[i].itemID == id){
+					if(Item.getIdFromItem(inv.mainInventory.get(i).getItem()) == id){
 					//	System.out.println("That's an item we're looking for!");
 						for(int k =0; k < amount; k++){
-						if(inv.mainInventory[i].stackSize > 0){
-							if(shouldTake){
-							//	System.out.println("Deducting item! "+Item.itemsList[id].getItemName());
-								if(inv.mainInventory[i].stackSize == 1){
-									inv.mainInventory[i] = null;
-									continue;
-								}else{
-								inv.mainInventory[i].stackSize--;
+							if(inv.mainInventory.get(i).getCount() > 0){
+								if(shouldTake){
+								//	System.out.println("Deducting item! "+Item.itemsList[id].getItemName());
+									if(inv.mainInventory.get(i).getCount() == 1){
+										inv.mainInventory.set(i, net.minecraft.item.ItemStack.EMPTY);
+										continue;
+									}else{
+										inv.mainInventory.get(i).shrink(1);
+									}
 								}
-								
+								tempAmt--;
 							}
-							tempAmt--;
 						}
 						//System.out.println("There's still "+tempAmt+" left to take of this item");
-						}
 					}
 				}
 			}

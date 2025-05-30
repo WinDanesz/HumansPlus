@@ -8,8 +8,9 @@ import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import net.minecraft.util.SoundEvent;
 
-public class HumanHunter extends Human {
+public class HumanHunter extends Human{
 
 	public HumanHunter(World world) {
 		super(world);
@@ -22,71 +23,62 @@ public class HumanHunter extends Human {
 	}
 
 	@Override
-	public void setTargetTypes(Class<? extends EntityLiving>[] mobs) {
-		// Hunters target hostile mobs
-	}
-}
-
-public class HumanHunter extends Human{
-
-	public HumanHunter(World par1World) {
-		super(par1World);
-		name = "Hunter";
-	}
-
-	@Override
-	public boolean interact(EntityPlayer par1EntityPlayer)
+	public boolean processInteract(EntityPlayer player, net.minecraft.util.EnumHand hand)
     {
-		return super.interact(par1EntityPlayer);
+		return super.processInteract(player, hand);
 	}
 	
 	boolean hasPlayed = false;
 	int timeDelay = 60;
+	boolean creeperWarning = false;
 	
 	@Override
 	public void onLivingUpdate(){
 		super.onLivingUpdate();
-		if(!hasPlayed && this.entityToAttack != null && entityToAttack.getDistanceToEntity(this) > 5D){
-			if(this.entityToAttack instanceof EntityPlayer){
-				worldObj.playSoundAtEntity(this, "okushama.humansplus.testing", 0.7F, 1F);
+		if(!hasPlayed && this.getAttackTarget() != null && getAttackTarget().getDistance(this) > 5D){
+			if(this.getAttackTarget() instanceof EntityPlayer){
+				world.playSound(null, this.posX, this.posY, this.posZ, 
+					net.minecraft.util.SoundEvent.REGISTRY.getObject(new net.minecraft.util.ResourceLocation("okushama.humansplus", "testing")), 
+					net.minecraft.util.SoundCategory.NEUTRAL, 0.7F, 1F);
 				hasPlayed = true;
 			}
 		}
-		if(this.entityToAttack != null && entityToAttack.getDistanceToEntity(this) <= 5D){
+		if(this.getAttackTarget() != null && getAttackTarget().getDistance(this) <= 5D){
 			timeDelay--;
 			if(timeDelay == 0)
-			hasPlayed = false;
+				hasPlayed = false;
 		}
+		
 		try{
-		if(this.getDistanceToEntity(Minecraft.getMinecraft().thePlayer) < 30D){
-			for(int i = 0; i < worldObj.loadedEntityList.size(); i++){
-				Entity ent = (Entity) worldObj.loadedEntityList.get(i);
-				if(ent instanceof EntityCreeper){
-					EntityCreeper crp = ((EntityCreeper)ent);
-					if(crp.getEntityToAttack() == Minecraft.getMinecraft().thePlayer){
-						if(!creeperWarning){
-							worldObj.playSoundAtEntity(this, "okushama.humansplus.huntercreeper", 1F, 1F);
-							creeperWarning = true;
+			EntityPlayer player = world.getClosestPlayer(this.posX, this.posY, this.posZ, 30D, false);
+			if(player != null && this.getDistance(player) < 30D){
+				for(net.minecraft.entity.Entity ent : world.loadedEntityList){
+					if(ent instanceof EntityCreeper){
+						EntityCreeper crp = ((EntityCreeper)ent);
+						if(crp.getAttackTarget() == player){
+							if(!creeperWarning){
+								world.playSound(null, this.posX, this.posY, this.posZ, 
+									net.minecraft.util.SoundEvent.REGISTRY.getObject(new net.minecraft.util.ResourceLocation("okushama.humansplus", "huntercreeper")), 
+									net.minecraft.util.SoundCategory.NEUTRAL, 1F, 1F);
+								creeperWarning = true;
+							}
 						}
 					}
 				}
+			}else{
+				creeperWarning = false;
 			}
-		}else{
-			creeperWarning = false;
-		}
 		}catch(Exception e){}
 	}
 	
-	public boolean creeperWarning = false;
-	
 	@Override
-	public String getHurtSound(){
-		return "okushama.humansplus.testhurt";
+	protected net.minecraft.util.SoundEvent getHurtSound(net.minecraft.util.DamageSource damageSourceIn){
+		return net.minecraft.util.SoundEvent.REGISTRY.getObject(new net.minecraft.util.ResourceLocation("okushama.humansplus", "testhurt"));
 	}
 	
 	@Override
-	public String getDeathSound(){
-		return "okushama.humansplus.testdeath";
+	protected net.minecraft.util.SoundEvent getDeathSound(){
+		return net.minecraft.util.SoundEvent.REGISTRY.getObject(new net.minecraft.util.ResourceLocation("okushama.humansplus", "testdeath"));
 	}
 	
 	
